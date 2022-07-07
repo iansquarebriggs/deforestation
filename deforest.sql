@@ -39,49 +39,50 @@ ORDER BY 3;
 
 /* Table 3.1 */
 WITH t1 AS (
-SELECT country_name, year, forest_area_sqkm
-FROM forest_area
-WHERE year = '2016'),
+    SELECT country_name, year, forest_area_sqkm
+    FROM forest_area
+    WHERE year = '2016'),
 t2 AS (
-SELECT country_name AS country_name_two, year AS year_two,
-forest_area_sqkm AS forest_two
-FROM forest_area
-WHERE year = '1990'),
+    SELECT country_name AS country_name_two, year AS year_two,
+    forest_area_sqkm AS forest_two
+    FROM forest_area
+    WHERE year = '1990'),
 t3 AS (
-SELECT region, country_name AS country_name_three FROM regions)
-SELECT region, country_name, COALESCE(forest_area_sqkm - forest_two, 0) AS absolute_forest_area_change
-FROM t1
-JOIN t2
-ON t1.country_name = t2.country_name_two
-JOIN t3
-ON t2.country_name_two = t3.country_name_three WHERE country_name NOT LIKE 'World'
-ORDER BY 3
-LIMIT 3;
+    SELECT region, country_name AS country_name_three FROM regions)
+    SELECT region, country_name, COALESCE(forest_area_sqkm - forest_two, 0) AS absolute_forest_area_change
+    FROM t1
+    JOIN t2
+    ON t1.country_name = t2.country_name_two
+    JOIN t3
+    ON t2.country_name_two = t3.country_name_three WHERE country_name NOT LIKE 'World'
+    ORDER BY 3
+    LIMIT 3;
 
  /* Table 3.2 */
-SELECT t4.country_name, t4.region, (t4.difference / (t4.forest_two + 0.01)) * 100 AS percent FROM
+SELECT t4.country_name, t4.region, (t4.difference / (t4.forest_two + 0.01)) * 100 AS percent 
+FROM
 (WITH t1 AS (
-SELECT country_name,
-year,
-forest_area_sqkm FROM forest_area
-WHERE year = '2016'),
+    SELECT country_name,
+    year,
+    forest_area_sqkm FROM forest_area
+    WHERE year = '2016'),
 t2 AS (
-SELECT country_name AS country_name_two,
-year AS year_two,
-forest_area_sqkm AS forest_two FROM forest_area
-WHERE year = '1990'),
+    SELECT country_name AS country_name_two,
+    year AS year_two,
+    forest_area_sqkm AS forest_two FROM forest_area
+    WHERE year = '1990'),
 t3 AS (
-SELECT region,
-country_name AS country_name_three FROM regions)
-SELECT region, country_name,
-year,
-COALESCE(forest_area_sqkm, 0) AS forest_area_sqkm, year_two,
-COALESCE(forest_two, 0) AS forest_two, COALESCE(forest_area_sqkm - forest_two, 0) AS difference
-FROM t1
-JOIN t2
-ON t1.country_name = t2.country_name_two
-JOIN t3
-ON t2.country_name_two = t3.country_name_three ORDER BY difference) AS t4
+    SELECT region,
+    country_name AS country_name_three FROM regions)
+    SELECT region, country_name,
+    year,
+    COALESCE(forest_area_sqkm, 0) AS forest_area_sqkm, year_two,
+    COALESCE(forest_two, 0) AS forest_two, COALESCE(forest_area_sqkm - forest_two, 0) AS difference
+    FROM t1
+    JOIN t2
+    ON t1.country_name = t2.country_name_two
+    JOIN t3
+    ON t2.country_name_two = t3.country_name_three ORDER BY difference) AS t4
 ORDER BY 3
 LIMIT 3;
 
@@ -113,17 +114,19 @@ FROM (
 /* Table 3.4 */
 SELECT t2.country_name,
 t2.region_name,
-t2.percent FROM (
-SELECT COALESCE(t1.forest_pct, 0) AS percent, t1.country AS country_name, t1.region AS region_name FROM (
-SELECT f.year,
-(SUM(f.forest_area_sqkm) / (SUM(l.total_area_sq_mi) * 2.59)) * 100 AS forest_pct,
-f.country_name AS country,
-r.region AS region
-FROM forest_area f
-JOIN land_area l
-ON f.country_code = l.country_code JOIN regions r
-ON l.country_code = r.country_code
-WHERE f.year = '2016'
-GROUP BY 1, 3, 4) AS t1
-GROUP BY t1.forest_pct, t1.country, t1.region) AS t2
+t2.percent 
+FROM (
+    SELECT COALESCE(t1.forest_pct, 0) AS percent, t1.country AS country_name, t1.region AS region_name
+    FROM (
+        SELECT f.year,
+        (SUM(f.forest_area_sqkm) / (SUM(l.total_area_sq_mi) * 2.59)) * 100 AS forest_pct,
+        f.country_name AS country,
+        r.region AS region
+        FROM forest_area f
+        JOIN land_area l
+        ON f.country_code = l.country_code JOIN regions r
+        ON l.country_code = r.country_code
+        WHERE f.year = '2016'
+        GROUP BY 1, 3, 4) AS t1
+    GROUP BY t1.forest_pct, t1.country, t1.region) AS t2
 ORDER BY 3 DESC LIMIT 3;
